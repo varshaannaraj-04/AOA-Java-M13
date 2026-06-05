@@ -1,30 +1,30 @@
 
-# EX 3A N Queens Problem - Backtracking Approach.
-## DATE: 05/06/2026
+# EX 3B Rat in Maze- Backtracking 
+## DATE:05/06/2026
 ## AIM:
-To Write a Java program for N queens using backtracking approach.
-You are given an integer N. For a given N x N chessboard, find a way to place 'N' queens such that no queen can attack any other queen on the chessboard.
-A queen can be attacked when it lies in the same row, column, or the same diagonal as any of the other queens. You have to print one such configuration.
-Chess Board
-<img width="241" height="209" alt="image" src="https://github.com/user-attachments/assets/96aacb61-4f34-423f-b324-5e34454e42b8" />
+To write a Java program to for given constraints.
+here is a ball in a maze with empty spaces (represented as 0) and walls (represented as 1). The ball can go through the empty spaces by rolling up, down, left or right, but it won't stop rolling until hitting a wall. When the ball stops, it could choose the next direction.
 
+Given the m x n maze, the ball's start position and the destination, where start = [startrow, startcol] and destination = [destinationrow, destinationcol], return true if the ball can stop at the destination, otherwise return false.
 
-Note :
+You may assume that the borders of the maze are all walls (see examples).
+<img width="573" height="573" alt="image" src="https://github.com/user-attachments/assets/d6f1c054-cdc2-4bb3-9c55-512fb2cf0fb7" />
+Input: maze = [[0,0,1,0,0],[0,0,0,0,0],[0,0,0,1,0],[1,1,0,1,1],[0,0,0,0,0]], start = [0,4], destination = [4,4]
+Output: true
+Explanation: One possible way is : left -> down -> left -> down -> right -> down -> right.
 
-Get the input from the user for N . The value of N must be from 1 to 4
-
-If solution exists Print a binary matrix as output that has 1s for the cells where queens are placed
-
-If there is no solution to the problem  print  "Solution does not exist"
 
 ## Algorithm
+1.Start and read the maze, start point, and destination.
 
-1. Start the program and read the value of `N` (size of the chessboard) from the user.
-2. Initialize an `N x N` board filled with zeros to represent an empty chessboard.
-3. Use the `isSafe()` function to check if a queen can be safely placed at a given position (no other queen in the same row, column, or diagonal).
-4. Use recursion (`solveNQUtil()`) to try placing queens column by column, backtracking if a conflict occurs.
-5. If a solution is found, print the board with `1`s marking queen positions; otherwise, print **"Solution does not exist"**.
+2.Initialize a visited matrix to track visited cells.
 
+3.From the current cell, move in all four directions until hitting a wall.
+
+4.Mark visited cells and recursively explore unvisited reachable positions.
+
+5.If the destination is reached, return true; else return false.
+   
 
 ## Program:
 ```
@@ -32,92 +32,75 @@ If there is no solution to the problem  print  "Solution does not exist"
 Developed by: VARSHA A
 Register Number: 212223220121
 */
-import java.util.Scanner;
+import java.util.*;
 
-public class NQueens {
-    static int N;
+public class Main {
 
-    
-    static void printSolution(int[][] board) {
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                System.out.print(board[i][j] + " ");
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        int m = sc.nextInt();
+        int n = sc.nextInt();
+
+        int[][] maze = new int[m][n];
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                maze[i][j] = sc.nextInt();
             }
-            System.out.println();
         }
+
+        int[] start = new int[]{sc.nextInt(), sc.nextInt()};
+
+        int[] destination = new int[]{sc.nextInt(), sc.nextInt()};
+
+        Solution sol = new Solution();
+        boolean result = sol.hasPath(maze, start, destination);
+
+        System.out.println(result);
     }
+}
 
-    
-    static boolean isSafe(int[][] board, int row, int col) {
-        // Check left side of current row
-        for (int i = 0; i < col; i++)
-            if (board[row][i] == 1)
-                return false;
-
-       
-        for (int i = row, j = col; i >= 0 && j >= 0; i--, j--)
-            if (board[i][j] == 1)
-                return false;
-
-        
-        for (int i = row, j = col; i < N && j >= 0; i++, j--)
-            if (board[i][j] == 1)
-                return false;
-
-        return true;
-    }
-
-    // Recursive utility function to solve N-Queens
-    static boolean solveNQUtil(int[][] board, int col) {
-        //Add your code Here
-        if(col>=N)
-        {
+class Solution {
+    public boolean dfs(int m, int n, int[][] maze, int[] curr, int[] destination, boolean[][] visit) {
+        if (visit[curr[0]][curr[1]]) {
+            return false;
+        }
+        if (curr[0] == destination[0] && curr[1] == destination[1]) {
             return true;
         }
-        
-        for (int i=0;i<N;i++)
-        {
-            if(isSafe(board, i,col))
-            {
-                board[i][col]=1;
-            
-            if(solveNQUtil(board,col+1))
-            
-               
+
+        visit[curr[0]][curr[1]] = true;
+        int[] dirX = {0, 1, 0, -1};
+        int[] dirY = {-1, 0, 1, 0};
+
+        for (int i = 0; i < 4; i++) {
+            int r = curr[0], c = curr[1];
+            while (r >= 0 && r < m && c >= 0 && c < n && maze[r][c] == 0) {
+                r += dirX[i];
+                c += dirY[i];
+            }
+            r -= dirX[i];
+            c -= dirY[i];
+            if (dfs(m, n, maze, new int[]{r, c}, destination, visit)) {
                 return true;
-                board[i][col]=0;
             }
         }
         return false;
     }
 
-    
-    static boolean solveNQ() {
-        int[][] board = new int[N][N];
-
-        if (!solveNQUtil(board, 0)) {
-            System.out.println("Solution does not exist");
-            return false;
-        }
-
-        printSolution(board);
-        return true;
-    }
-
-   
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        N = scanner.nextInt(); // Accept board size
-        solveNQ();
+    public boolean hasPath(int[][] maze, int[] start, int[] destination) {
+        int m = maze.length;
+        int n = maze[0].length;
+        boolean[][] visit = new boolean[m][n];
+        return dfs(m, n, maze, start, destination, visit);
     }
 }
-
 ```
 
 ## Output:
-<img width="633" height="261" alt="image" src="https://github.com/user-attachments/assets/3c079e15-3140-4737-866e-414cce15e0cd" />
 
+<img width="362" height="520" alt="image" src="https://github.com/user-attachments/assets/21de3148-e9fa-4dc9-9875-89524b4a0826" />
 
 
 ## Result:
-The program successfully implemented and the ouput is verified. 
+The program successfully implemented and the expected output is verified.
